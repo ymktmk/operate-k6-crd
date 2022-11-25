@@ -17,12 +17,20 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
+type K6 struct {
+	client         dynamic.Interface
+	Resource       schema.GroupVersionResource
+	UnstructuredK6 *unstructured.Unstructured
+	CurrentK6      v1alpha1.K6
+}
+
 func NewK6(
 	template,
 	vus,
 	duration,
 	rps,
-	parallelism string) (*K6, error) {
+	parallelism, 
+	file string) (*K6, error) {
 
 	client, err := NewClientSet()
 	if err != nil {
@@ -46,13 +54,20 @@ func NewK6(
 		return nil, err
 	}
 
+	// 
 	numberOfJobs := currentK6.Spec.Parallelism
 	if parallelism != "" {
 		num, err := strconv.ParseInt(parallelism, 10, 32)
 		if err != nil {
 			return nil, err
 		}
-		numberOfJobs = num
+		numberOfJobs = int32(num)
+	}
+
+	// js
+	jsFile := currentK6.Spec.Script.ConfigMap.File
+	if file != "" {
+		jsFile = file
 	}
 
 	k6Res := schema.GroupVersionResource{Group: "k6.io", Version: "v1alpha1", Resource: "k6s"}
@@ -66,11 +81,12 @@ func NewK6(
 				"namespace": currentK6.ObjectMeta.Namespace,
 			},
 			"spec": map[string]interface{}{
-				"parallelism": numberOfJobs,
+				// int64
+				"parallelism": int64(numberOfJobs),
 				"script": map[string]interface{}{
 					"configMap": map[string]interface{}{
 						"name": currentK6.Spec.Script.ConfigMap.Name,
-						"file": currentK6.Spec.Script.ConfigMap.File,
+						"file": jsFile,
 					},
 				},
 				"runner": map[string]interface{}{},
@@ -130,13 +146,6 @@ func NewK6(
 		CurrentK6:      currentK6,
 	}, nil
 
-}
-
-type K6 struct {
-	client         dynamic.Interface
-	Resource       schema.GroupVersionResource
-	UnstructuredK6 *unstructured.Unstructured
-	CurrentK6      v1alpha1.K6
 }
 
 func (k *K6) CreateK6() error {
@@ -237,11 +246,11 @@ func GetEnvList(envVar []v1alpha1.EnvVar) []interface{} {
 		}
 		if v.ValueFrom.SecretKeyRef.Name != "" {
 			env := map[string]interface{}{
-				"name":  v.Name,
+				"name": v.Name,
 				"valueFrom": map[string]interface{}{
 					"secretKeyRef": map[string]interface{}{
 						"name": v.ValueFrom.SecretKeyRef.Name,
-						"key": v.ValueFrom.SecretKeyRef.Key,
+						"key":  v.ValueFrom.SecretKeyRef.Key,
 					},
 				},
 			}

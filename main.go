@@ -14,17 +14,18 @@ func main() {
 		fail("the INPUT_METHOD has not been set")
 	}
 
+	template := os.Getenv("INPUT_TEMPLATE")
+	if len(template) == 0 {
+		fail("the INPUT_TEMPLATE has not been set")
+	}
+
 	vus := os.Getenv("INPUT_VUS")
 	duration := os.Getenv("INPUT_DURATION")
 	rps := os.Getenv("INPUT_RPS")
 	parallelism := os.Getenv("INPUT_PARALLELISM")
+	file := os.Getenv("INPUT_FILE")
 
-	template := os.Getenv("INPUT_TEMPLATE")
-	if len(template) == 0 {
-		fail("the INPUT_TEMPLATE_FILE has not been set")
-	}
-
-	k, err := k6.NewK6(template, vus, duration, rps, parallelism)
+	k, err := k6.NewK6(template, vus, duration, rps, parallelism, file)
 	if err != nil {
 		fail(err.Error())
 	}
