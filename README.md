@@ -1,12 +1,25 @@
 ## operate-k6-crd
 
-!!!! still in development !!!!
+### 🚨 still in development 🚨
 
 A GitHub Actions tool for working with K6 CRDs.
 
 vus, duration, rps, parallelism can be overridden
 
 * Some env setting are not supported
+
+### Example of use
+
+```yaml
+- name: Create K6 CRD
+  uses: ymktmk/operate-k6-crd@main
+  with: 
+    method: create
+    parallelism: 1
+    template: ./example/k6.yaml
+```
+
+### K6 CRD Example
 
 ```yaml
 apiVersion: k6.io/v1alpha1
@@ -30,13 +43,4 @@ spec:
         secretKeyRef:
           name: secret
           key: token
-```
-
-```yaml
- - name: Create K6 CRD
-  uses: ymktmk/operate-k6-crd@main
-  with: 
-    method: create
-    parallelism: 1
-    template: ./k6.yaml
 ```

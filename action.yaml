@@ -1,23 +1,6 @@
 name: 'Operate K6 CRD'
 description: 'Create and delete K6 Custom Resource Definitions to Kubernetes Cluster'
 author: 'ymktmk'
-runs:
-  using: 'composite'
-  steps:
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-    - name: build & run
-      shell: bash
-      run: go run main.go
-      env:
-        INPUT_METHOD: ${{ inputs.method }}
-        INPUT_VUS: ${{ inputs.vus }}
-        INPUT_DURATION: ${{ inputs.duration }}
-        INPUT_RPS: ${{ inputs.rps }}
-        INPUT_PARALLELISM: ${{ inputs.parallelism }}
-        INPUT_TEMPLATE: ${{ inputs.template }}
 branding:
   icon: 'k6'
   color: 'orange'
@@ -44,3 +27,34 @@ inputs:
   template:
     description: 'k6 template file path'
     required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: env1
+      shell: bash
+      run: env
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
+
+    - name: clone
+      shell: bash
+      run: |
+        git clone https://github.com/ymktmk/operate-k6-crd.git
+
+    - name: build & run
+      shell: bash
+      run: cd operate-k6-crd && go run main.go
+      env:
+        INPUT_METHOD: ${{ inputs.method }}
+        INPUT_VUS: ${{ inputs.vus }}
+        INPUT_DURATION: ${{ inputs.duration }}
+        INPUT_RPS: ${{ inputs.rps }}
+        INPUT_PARALLELISM: ${{ inputs.parallelism }}
+        INPUT_TEMPLATE: ${{ inputs.template }}
+
+    - name: env2
+      shell: bash
+      run: env
