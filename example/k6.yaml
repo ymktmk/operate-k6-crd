@@ -1,0 +1,22 @@
+apiVersion: k6.io/v1alpha1
+kind: K6
+metadata:
+  name: k6-sample
+  namespace: k6-operator-system
+spec:
+  parallelism: 4
+  script:
+    configMap:
+      name: crocodile-stress-test
+      file: test.js
+  arguments: --vus 4 --duration 30s --rps 10
+  runner:
+    env:
+    # 以下の2種類しか対応しないことにする
+    - name: URL
+      value: "https://test.k6.io"
+    - name: SLACK_TOKEN
+      valueFrom: 
+        secretKeyRef:
+          name: secret
+          key: token

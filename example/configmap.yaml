@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: crocodile-stress-test
+  namespace: k6-operator-system
+data:
+  test.js: |+
+    import http from 'k6/http'
+    import check from 'k6'
+
+    export const options = {
+      vus: 100,
+      duration: '100s',
+      rps: 100
+    }
+
+    export default function () {
+      let response = http.get(__ENV.URL)
+      check(response, { "status is 200": (r) => r.status === 200 })
+    }
+
+    export function handleSummary(data) {
+      sendSlackMessage(data)
+    }
+
+    function sendSlackMessage(data) {
+
+      const payload = {
+        channel: "C04CR5WMSU8",
+        attachments: [
+          {
+            color: "#632eb8",
+            blocks: [
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: `*|K6 Report Summary* ${__ENV.HOSTNAME}`
+                }
+              },
+              {
+                type: "section",
+                text: {
+                  type: "mrkdwn",
+                  text: ""
+                },
+                accessory: {
+                  type: "image",
+                  image_url: "https://k6.io/images/landscape-icon.png",
+                  alt_text: "k6 thumbnail"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    
+      let maxThroughput = data.metrics.http_reqs.values['count']
+      let failRequest = data.metrics.http_req_failed.values['passes']
+
+      let avgResponseTime = data.metrics.http_req_duration.values['avg']
+      let p95ResponseTime = data.metrics.http_req_duration.values['p(95)']
+      let vus = data.metrics.vus.values['value']
+
+      let sectionBlocks = payload.attachments.find((attachments) => {
+        return attachments.blocks[1].type === "section"
+      })
+
+      sectionBlocks.blocks[1].text.text = 
+        "*Max Throughput:*\n" + maxThroughput + " reqs/s" +
+        "\n*HTTP Failures:*\n" + failRequest + " reqs" + 
+        "\n*Avg Response Time:*\n" + avgResponseTime + " ms" +
+        "\n*95% Response Time:*\n" + p95ResponseTime + " ms" +
+        "\n*Vus:*\n" + vus + " Vus"
+
+      const slackRes = http.post('https://slack.com/api/chat.postMessage', JSON.stringify(payload), {
+        headers: {
+          'Authorization': 'Bearer ' + slack_token,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log(slackRes.body)
+      
+    }
