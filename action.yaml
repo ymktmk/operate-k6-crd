@@ -28,35 +28,35 @@ inputs:
     description: 'k6 template file path'
     required: true
 runs:
+  # uses: ymktmk/operate-k6-crd@main は以下の通りの挙動しかしない。
+
   # using: 'docker' にすると最初にコンテナのBuildが走る。
   # 自動で環境変数をコンテナ側にもセットしてくれる(INPUT_VUS etc)
   # 指定したコマンドも実行してくれる
   using: 'composite'
   steps:
-    - name: ls
-      shell: bash
-      run: ls -la
+    
     
     # 最終的にはバイナリのみインストールし、実行する
-    # - name: Set up Go
-    #   uses: actions/setup-go@v3
-    #   with:
-    #     go-version: 1.18
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.18
     
-    # - name: clone
-    #   shell: bash
-    #   run: |
-    #     git clone https://github.com/ymktmk/operate-k6-crd.git
-    #     env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o main operate-k6-crd/main.go
+    - name: clone
+      shell: bash
+      run: |
+        git clone https://github.com/ymktmk/operate-k6-crd.git
+        env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o main operate-k6-crd/main.go
 
     # 各ステップは別プロセスなのでステップ内で定義した環境変数は共有できない
-    # - name: build & run
-    #   shell: bash
-    #   run: ./main
-    #   env:
-    #     INPUT_METHOD: ${{ inputs.method }}
-    #     INPUT_VUS: ${{ inputs.vus }}
-    #     INPUT_DURATION: ${{ inputs.duration }}
-    #     INPUT_RPS: ${{ inputs.rps }}
-    #     INPUT_PARALLELISM: ${{ inputs.parallelism }}
-    #     INPUT_TEMPLATE: ${{ inputs.template }}
+    - name: build & run
+      shell: bash
+      run: ./main
+      env:
+        INPUT_METHOD: ${{ inputs.method }}
+        INPUT_VUS: ${{ inputs.vus }}
+        INPUT_DURATION: ${{ inputs.duration }}
+        INPUT_RPS: ${{ inputs.rps }}
+        INPUT_PARALLELISM: ${{ inputs.parallelism }}
+        INPUT_TEMPLATE: ${{ inputs.template }}
