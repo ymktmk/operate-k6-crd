@@ -29,14 +29,11 @@ inputs:
     required: true
 runs:
   # uses: ymktmk/operate-k6-crd@main は以下の通りの挙動しかしない。
-
   # using: 'docker' にすると最初にコンテナのBuildが走る。
   # 自動で環境変数をコンテナ側にもセットしてくれる(INPUT_VUS etc)
   # 指定したコマンドも実行してくれる
   using: 'composite'
   steps:
-    
-    
     # 最終的にはバイナリのみインストールし、実行する
     - name: Set up Go
       uses: actions/setup-go@v3

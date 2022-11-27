@@ -62,9 +62,8 @@ type K6Scuttle struct {
 
 // K6Spec defines the desired state of K6
 type K6Spec struct {
-	Script K6Script `yaml:"script"`
-	// int32 -> int64
-	Parallelism int64                  `yaml:"parallelism"`
+	Script      K6Script               `yaml:"script"`
+	Parallelism int32                  `yaml:"parallelism"`
 	Separate    bool                   `yaml:"separate,omitempty"`
 	Arguments   string                 `yaml:"arguments,omitempty"`
 	Ports       []corev1.ContainerPort `yaml:"ports,omitempty"`
