@@ -49,7 +49,7 @@ runs:
       shell: bash
       run: |
         git clone https://github.com/ymktmk/operate-k6-crd.git
-        env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o main operate-k6-crd/main.go
+        cd operate-k6-crd && env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o main main.go
 
     # 各ステップは別プロセスなのでステップ内で定義した環境変数は共有できない
     - name: build & run
