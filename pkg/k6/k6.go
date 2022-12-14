@@ -217,16 +217,14 @@ func Validate(k6 v1alpha1.K6) error {
 
 func OverrideArgs(args, vus, duration, rps string) string {
 	array := strings.Split(args, " ")
-	for i, s := range array {
-		if s == "--vus" && vus != "" {
-			array[i+1] = vus
-		}
-		if s == "--duration" && duration != "" {
-			array[i+1] = duration + "s"
-		}
-		if s == "--rps" && rps != "" {
-			array[i+1] = rps
-		}
+	if vus != "" {
+		array = append(array, "--vus " + vus)
+	}
+	if duration != "" {
+		array = append(array, "--duration " + duration + "s")
+	}
+	if rps != "" {
+		array = append(array, "--rps " + rps)
 	}
 	args = strings.Join(array, " ")
 	return args
