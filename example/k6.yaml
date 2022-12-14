@@ -4,12 +4,12 @@ metadata:
   name: k6-sample
   namespace: k6-operator-system
 spec:
-  parallelism: 4
+  parallelism: 1
   script:
     configMap:
       name: crocodile-stress-test
       file: test.js
-  arguments: --vus 4 --duration 30s --rps 10
+  # arguments: --vus 4 --duration 1s --rps 10
   runner:
     env:
     # 以下の2種類しか対応しないことにする

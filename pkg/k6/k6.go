@@ -5,16 +5,21 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ymktmk/apply-k6-crd/api/v1alpha1"
 	"gopkg.in/yaml.v2"
+
 	// corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/dynamicinformer"
+	"k8s.io/client-go/tools/cache"
 )
 
 type K6 struct {
@@ -24,13 +29,7 @@ type K6 struct {
 	CurrentK6      v1alpha1.K6
 }
 
-func NewK6(
-	template,
-	vus,
-	duration,
-	rps,
-	parallelism, 
-	file string) (*K6, error) {
+func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) {
 
 	client, err := NewClientSet()
 	if err != nil {
@@ -54,7 +53,6 @@ func NewK6(
 		return nil, err
 	}
 
-	// 
 	numberOfJobs := currentK6.Spec.Parallelism
 	if parallelism != "" {
 		num, err := strconv.ParseInt(parallelism, 10, 32)
@@ -82,6 +80,7 @@ func NewK6(
 			},
 			"spec": map[string]interface{}{
 				// int64
+				"arguments": "",
 				"parallelism": int64(numberOfJobs),
 				"script": map[string]interface{}{
 					"configMap": map[string]interface{}{
@@ -106,7 +105,6 @@ func NewK6(
 		return nil, err
 	}
 
-	// envがあればmanifestから取得して詰める
 	if len(currentK6.Spec.Runner.Env) != 0 {
 		envList := GetEnvList(currentK6.Spec.Runner.Env)
 		err = unstructured.SetNestedSlice(runner, envList, "env")
@@ -149,6 +147,7 @@ func NewK6(
 }
 
 func (k *K6) CreateK6() error {
+	name := k.CurrentK6.ObjectMeta.Name
 	namespace := k.CurrentK6.ObjectMeta.Namespace
 	k6 := k.UnstructuredK6
 
@@ -161,6 +160,37 @@ func (k *K6) CreateK6() error {
 		log.Printf("k6.k6.io/%q created\n", result.GetName())
 	}
 
+	// delete k6 crd
+	managementInformerFactory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(k.client, 0, metav1.NamespaceAll, nil)
+
+	gvrMachineSet := schema.GroupVersionResource{
+        Group:    "k6.io",
+        Version:  "v1alpha1",
+        Resource: "k6s",
+    }
+
+	machineSetInformer := managementInformerFactory.ForResource(gvrMachineSet)
+    machineSetInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{})  {
+			status := newObj.(*unstructured.Unstructured).Object["status"].(map[string]interface{})["stage"]
+			log.Printf("K6 Status: %s\n", status)
+			if status == "finished" {
+				err := k.client.Resource(k.Resource).Namespace(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+				if err != nil {
+					log.Printf("Error: %s\n", err)
+					os.Exit(1)
+				}
+				log.Printf("k6.k6.io/%q deleted\n", name)
+			}
+		},
+	})
+
+	stopCh := make(chan struct{})
+    defer close(stopCh)
+	go managementInformerFactory.Start(stopCh)
+	time.Sleep(time.Second * 100)
+	// select {}
+	
 	return nil
 }
 

@@ -9,18 +9,22 @@ import (
 
 func main() {
 
-	method := os.Getenv("INPUT_METHOD")
-	if len(method) == 0 {
-		fail("the INPUT_METHOD has not been set")
-	}
+	// method := os.Getenv("INPUT_METHOD")
+	// if len(method) == 0 {
+	// 	fail("the INPUT_METHOD has not been set")
+	// }
 
-	template := os.Getenv("INPUT_TEMPLATE")
-	if len(template) == 0 {
-		fail("the INPUT_TEMPLATE has not been set")
-	}
+	// template := os.Getenv("INPUT_TEMPLATE")
+	// if len(template) == 0 {
+	// 	fail("the INPUT_TEMPLATE has not been set")
+	// }
+
+	method := "create"
+	template := "./example/k6.yaml"
 
 	vus := os.Getenv("INPUT_VUS")
-	duration := os.Getenv("INPUT_DURATION")
+	// duration := os.Getenv("INPUT_DURATION")
+	duration := "10"
 	rps := os.Getenv("INPUT_RPS")
 	parallelism := os.Getenv("INPUT_PARALLELISM")
 	file := os.Getenv("INPUT_FILE")
