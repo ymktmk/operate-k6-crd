@@ -9,7 +9,7 @@ spec:
     configMap:
       name: crocodile-stress-test
       file: test.js
-  # arguments: --vus 4 --duration 1s --rps 10
+  arguments: --vus 4 --duration 1s --rps 10
   runner:
     env:
     # 以下の2種類しか対応しないことにする

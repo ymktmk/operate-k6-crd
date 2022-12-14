@@ -8,7 +8,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/ymktmk/apply-k6-crd/api/v1alpha1"
 	"gopkg.in/yaml.v2"
@@ -169,9 +168,13 @@ func (k *K6) CreateK6() error {
         Resource: "k6s",
     }
 
+	stopCh := make(chan struct{})
+	closeCh := make(chan bool)
+
 	machineSetInformer := managementInformerFactory.ForResource(gvrMachineSet)
-    machineSetInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{})  {
+
+	machineSetInformer.Informer().AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
 			status := newObj.(*unstructured.Unstructured).Object["status"].(map[string]interface{})["stage"]
 			log.Printf("K6 Status: %s\n", status)
 			if status == "finished" {
@@ -181,29 +184,20 @@ func (k *K6) CreateK6() error {
 					os.Exit(1)
 				}
 				log.Printf("k6.k6.io/%q deleted\n", name)
+				closeCh <- true
 			}
 		},
 	})
 
-	stopCh := make(chan struct{})
-    defer close(stopCh)
-	go managementInformerFactory.Start(stopCh)
-	time.Sleep(time.Second * 100)
-	// select {}
-	
-	return nil
-}
-
-func (k *K6) DeleteK6() error {
-	name := k.CurrentK6.ObjectMeta.Name
-	namespace := k.CurrentK6.ObjectMeta.Namespace
-
-	err := k.client.Resource(k.Resource).Namespace(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
-	if err != nil {
-		return err
+	for {
+		go func () {
+			managementInformerFactory.Start(stopCh)
+		}()
+		close := <-closeCh
+		if close {
+			break
+		}
 	}
-
-	log.Printf("k6.k6.io/%q deleted\n", name)
 
 	return nil
 }

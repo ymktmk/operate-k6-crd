@@ -5,9 +5,6 @@ branding:
   icon: 'k6'
   color: 'orange'
 inputs:
-  method:
-    description: 'set create or delete'
-    required: true
   vus:
     description: 'vus'
     required: false
@@ -49,7 +46,6 @@ runs:
       shell: bash
       run: ./main
       env:
-        INPUT_METHOD: ${{ inputs.method }}
         INPUT_VUS: ${{ inputs.vus }}
         INPUT_DURATION: ${{ inputs.duration }}
         INPUT_RPS: ${{ inputs.rps }}
