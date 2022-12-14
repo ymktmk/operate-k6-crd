@@ -24,10 +24,10 @@ inputs:
     description: 'parallelism'
     required: false
     default: ''
-  # file: 
-  #   description: 'scenario javaScript file'
-  #   required: false
-  #   default: ''
+  file: 
+    description: 'scenario javaScript file'
+    required: false
+    default: ''
   template:
     description: 'k6 template file path'
     required: true
@@ -45,7 +45,6 @@ runs:
         git clone https://github.com/ymktmk/operate-k6-crd.git
         cd operate-k6-crd && env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o ../main main.go
 
-    # 各ステップは別プロセスなのでステップ内で定義した環境変数は共有できない
     - name: build & run
       shell: bash
       run: ./main
@@ -55,5 +54,5 @@ runs:
         INPUT_DURATION: ${{ inputs.duration }}
         INPUT_RPS: ${{ inputs.rps }}
         INPUT_PARALLELISM: ${{ inputs.parallelism }}
-        # INPUT_FILE: ${{ inputs.file }}
+        INPUT_FILE: ${{ inputs.file }}
         INPUT_TEMPLATE: ${{ inputs.template }}
