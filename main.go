@@ -8,12 +8,7 @@ import (
 )
 
 func main() {
-
-	method := os.Getenv("INPUT_METHOD")
-	if len(method) == 0 {
-		fail("the INPUT_METHOD has not been set")
-	}
-
+	
 	template := os.Getenv("INPUT_TEMPLATE")
 	if len(template) == 0 {
 		fail("the INPUT_TEMPLATE has not been set")
@@ -30,19 +25,9 @@ func main() {
 		fail(err.Error())
 	}
 
-	switch method {
-	case "create":
-		err = k.CreateK6()
-		if err != nil {
-			fail(err.Error())
-		}
-	case "delete":
-		err = k.DeleteK6()
-		if err != nil {
-			fail(err.Error())
-		}
-	default:
-		fail("the INPUT_METHOD is create or delete")
+	err = k.CreateK6()
+	if err != nil {
+		fail(err.Error())
 	}
 
 }

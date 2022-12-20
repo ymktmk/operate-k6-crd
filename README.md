@@ -45,3 +45,17 @@ spec:
           name: secret
           key: token
 ```
+
+## 
+
+k get pod -n k6-operator-system
+
+k apply -f example/k6.yaml 
+k delete -f example/k6.yaml 
+
+
+status:map[stage:initialization]]}
+status:map[stage:initialized]]
+status:map[stage:created]
+status:map[stage:started]
+status:map[stage:finished]
