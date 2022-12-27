@@ -53,7 +53,12 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 		return nil, err
 	}
 
-	currentK6.ObjectMeta.Name = "k6" + RandomString(6)
+	random, err := RandomString(6)
+	if err != nil {
+		return nil, err
+	}
+
+	currentK6.ObjectMeta.Name = "k6-" + random
 
 	numberOfJobs := currentK6.Spec.Parallelism
 	if parallelism != "" {
@@ -242,14 +247,19 @@ func Validate(k6 v1alpha1.K6) error {
 	return nil
 }
 
-func RandomString(n int) string {
-    var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+func RandomString(n uint64) (string, error) {
+    const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
 
-    b := make([]rune, n)
-    for i := range b {
-        b[i] = letter[rand.Intn(len(letter))]
+    b := make([]byte, n)
+    if _, err := rand.Read(b); err != nil {
+        return "", err
     }
-    return string(b)
+
+    var result string
+    for _, v := range b {
+        result += string(letters[int(v)%len(letters)])
+    }
+    return result, nil
 }
 
 func OverrideArgs(args, vus, duration, rps string) string {
