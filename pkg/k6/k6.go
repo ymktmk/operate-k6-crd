@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -51,6 +52,8 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 	if err != nil {
 		return nil, err
 	}
+
+	currentK6.ObjectMeta.Name = "k6" + RandomString(6)
 
 	numberOfJobs := currentK6.Spec.Parallelism
 	if parallelism != "" {
@@ -237,6 +240,16 @@ func Validate(k6 v1alpha1.K6) error {
 	}
 
 	return nil
+}
+
+func RandomString(n int) string {
+    var letter = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+    b := make([]rune, n)
+    for i := range b {
+        b[i] = letter[rand.Intn(len(letter))]
+    }
+    return string(b)
 }
 
 func OverrideArgs(args, vus, duration, rps string) string {
