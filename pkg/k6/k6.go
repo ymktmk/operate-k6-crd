@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"math/rand"
-	"os"
+	// "os"
 	"strconv"
 	"strings"
 
@@ -186,11 +186,11 @@ func (k *K6) CreateK6() error {
 			status := newObj.(*unstructured.Unstructured).Object["status"].(map[string]interface{})["stage"]
 			log.Printf("K6 Status: %s\n", status)
 			if status == "finished" {
-				err := k.client.Resource(k.Resource).Namespace(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
-				if err != nil {
-					log.Printf("Error: %s\n", err)
-					os.Exit(1)
-				}
+				// err := k.client.Resource(k.Resource).Namespace(namespace).Delete(context.TODO(), name, metav1.DeleteOptions{})
+				// if err != nil {
+				// 	log.Printf("Error: %s\n", err)
+				// 	os.Exit(1)
+				// }
 				log.Printf("k6.k6.io/%q deleted\n", name)
 				closeCh <- true
 			}
