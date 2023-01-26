@@ -36,15 +36,15 @@ runs:
       with:
         go-version: 1.18
     
-    - name: clone
+    - name: Clone
       shell: bash
       run: |
-        git clone https://github.com/ymktmk/operate-k6-crd.git
-        cd operate-k6-crd && env GOARCH=amd64 GOOS=linux go build -ldflags="-s -w" -o ../main main.go
+        wget https://github.com/ymktmk/operate-k6-crd/releases/download/v${{inputs.version}}/operate-k6-crd_${{inputs.version}}_linux_amd64.tar.gz
+        tar xvf operate-k6-crd_${{inputs.version}}_linux_amd64.tar.gz
 
-    - name: build & run
+    - name: Build & Run
       shell: bash
-      run: ./main
+      run: ./operate-k6-crd
       env:
         INPUT_VUS: ${{ inputs.vus }}
         INPUT_DURATION: ${{ inputs.duration }}
