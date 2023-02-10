@@ -12,7 +12,6 @@ spec:
   arguments: --vus 4 --duration 1s --rps 10
   runner:
     env:
-    # 以下の2種類しか対応しないことにする
     - name: URL
       value: "https://test.k6.io"
     - name: SLACK_TOKEN

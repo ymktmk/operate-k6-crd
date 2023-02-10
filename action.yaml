@@ -39,7 +39,7 @@ runs:
     - name: Clone
       shell: bash
       run: |
-        wget https://github.com/ymktmk/operate-k6-crd/releases/download/v${{inputs.version}}/operate-k6-crd_${{inputs.version}}_linux_amd64.tar.gz
+        wget -nv https://github.com/ymktmk/operate-k6-crd/releases/download/v${{inputs.version}}/operate-k6-crd_${{inputs.version}}_linux_amd64.tar.gz
         tar xvf operate-k6-crd_${{inputs.version}}_linux_amd64.tar.gz
 
     - name: Build & Run

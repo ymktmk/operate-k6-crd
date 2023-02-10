@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"math"
 	"math/rand"
 	"os"
 	"strconv"
@@ -53,12 +54,7 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 		return nil, err
 	}
 
-	random, err := RandomString(6)
-	if err != nil {
-		return nil, err
-	}
-
-	currentK6.ObjectMeta.Name = "k6-" + random
+	currentK6.ObjectMeta.Name = generateRandomName("k6")
 
 	numberOfJobs := currentK6.Spec.Parallelism
 	if parallelism != "" {
@@ -113,7 +109,7 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 	}
 
 	if len(currentK6.Spec.Runner.Env) != 0 {
-		envList := GetEnvList(currentK6.Spec.Runner.Env)
+		envList := getEnvList(currentK6.Spec.Runner.Env)
 		err = unstructured.SetNestedSlice(runner, envList, "env")
 		if err != nil {
 			return nil, err
@@ -122,7 +118,7 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 
 	// arguments into spec
 	if len(currentK6.Spec.Arguments) != 0 {
-		args := OverrideArgs(currentK6.Spec.Arguments, vus, duration, rps)
+		args := overrideArgs(currentK6.Spec.Arguments, vus, duration, rps)
 		log.Println(args)
 		err = unstructured.SetNestedField(spec, args, "arguments")
 		if err != nil {
@@ -150,7 +146,6 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 		UnstructuredK6: k6,
 		CurrentK6:      currentK6,
 	}, nil
-
 }
 
 func (k *K6) CreateK6() error {
@@ -171,10 +166,10 @@ func (k *K6) CreateK6() error {
 	managementInformerFactory := dynamicinformer.NewFilteredDynamicSharedInformerFactory(k.client, 0, metav1.NamespaceAll, nil)
 
 	gvrMachineSet := schema.GroupVersionResource{
-        Group:    "k6.io",
-        Version:  "v1alpha1",
-        Resource: "k6s",
-    }
+		Group:    "k6.io",
+		Version:  "v1alpha1",
+		Resource: "k6s",
+	}
 
 	stopCh := make(chan struct{})
 	closeCh := make(chan bool)
@@ -247,22 +242,7 @@ func Validate(k6 v1alpha1.K6) error {
 	return nil
 }
 
-func RandomString(n uint64) (string, error) {
-    const letters = "abcdefghijklmnopqrstuvwxyz0123456789"
-
-    b := make([]byte, n)
-    if _, err := rand.Read(b); err != nil {
-        return "", err
-    }
-
-    var result string
-    for _, v := range b {
-        result += string(letters[int(v)%len(letters)])
-    }
-    return result, nil
-}
-
-func OverrideArgs(args, vus, duration, rps string) string {
+func overrideArgs(args, vus, duration, rps string) string {
 	array := strings.Split(args, " ")
 	if vus != "" {
 		array = append(array, "--vus " + vus)
@@ -277,10 +257,8 @@ func OverrideArgs(args, vus, duration, rps string) string {
 	return args
 }
 
-func GetEnvList(envVar []v1alpha1.EnvVar) []interface{} {
-
+func getEnvList(envVar []v1alpha1.EnvVar) []interface{} {
 	var envList []interface{}
-
 	for _, v := range envVar {
 		if v.Name != "" {
 			env := map[string]interface{}{
@@ -302,6 +280,18 @@ func GetEnvList(envVar []v1alpha1.EnvVar) []interface{} {
 			envList = append(envList, env)
 		}
 	}
-
 	return envList
+}
+
+func generateRandomName(name string) string {
+	lengthToGenerate := math.Min(float64(62-len(name)), float64(32))
+	return fmt.Sprintf("%s-%s", name, secureRandomStr(int(lengthToGenerate)/2))
+}
+
+func secureRandomStr(b int) string {
+	k := make([]byte, b)
+	if _, err := rand.Read(k); err != nil {
+		panic(err)
+	}
+	return fmt.Sprintf("%x", k)
 }
