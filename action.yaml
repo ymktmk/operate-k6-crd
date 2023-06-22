@@ -5,6 +5,9 @@ branding:
   icon: 'k6'
   color: 'orange'
 inputs:
+  version:
+    description: 'operate-k6-crd version'
+    required: true
   vus:
     description: 'vus'
     required: false
