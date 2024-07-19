@@ -14,7 +14,6 @@ import (
 	"github.com/ymktmk/apply-k6-crd/api/v1alpha1"
 	"gopkg.in/yaml.v2"
 
-	// corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -76,14 +75,14 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 	k6 := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "k6.io/v1alpha1",
-			"kind":       "K6",
+			"kind":       "TestRun",
 			"metadata": map[string]interface{}{
 				"name":      currentK6.ObjectMeta.Name,
 				"namespace": currentK6.ObjectMeta.Namespace,
 			},
 			"spec": map[string]interface{}{
 				// int64
-				"arguments": "",
+				"arguments":   "",
 				"parallelism": int64(numberOfJobs),
 				"script": map[string]interface{}{
 					"configMap": map[string]interface{}{
@@ -193,7 +192,7 @@ func (k *K6) CreateK6() error {
 	})
 
 	for {
-		go func () {
+		go func() {
 			managementInformerFactory.Start(stopCh)
 		}()
 		close := <-closeCh
@@ -245,13 +244,13 @@ func Validate(k6 v1alpha1.K6) error {
 func overrideArgs(args, vus, duration, rps string) string {
 	array := strings.Split(args, " ")
 	if vus != "" {
-		array = append(array, "--vus " + vus)
+		array = append(array, "--vus "+vus)
 	}
 	if duration != "" {
-		array = append(array, "--duration " + duration + "s")
+		array = append(array, "--duration "+duration+"s")
 	}
 	if rps != "" {
-		array = append(array, "--rps " + rps)
+		array = append(array, "--rps "+rps)
 	}
 	args = strings.Join(array, " ")
 	return args

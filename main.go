@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	
+
 	template := os.Getenv("INPUT_TEMPLATE")
 	if len(template) == 0 {
 		fail("the INPUT_TEMPLATE has not been set")
