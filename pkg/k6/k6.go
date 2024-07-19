@@ -26,7 +26,7 @@ type K6 struct {
 	client         dynamic.Interface
 	Resource       schema.GroupVersionResource
 	UnstructuredK6 *unstructured.Unstructured
-	CurrentK6      v1alpha1.K6
+	CurrentK6      v1alpha1.TestRun
 }
 
 func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) {
@@ -41,7 +41,7 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 		return nil, err
 	}
 
-	var currentK6 v1alpha1.K6
+	var currentK6 v1alpha1.TestRun
 	err = yaml.Unmarshal(bytes, &currentK6)
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func (k *K6) CreateK6() error {
 	return nil
 }
 
-func Validate(k6 v1alpha1.K6) error {
+func Validate(k6 v1alpha1.TestRun) error {
 
 	if len(k6.ObjectMeta.Name) == 0 {
 		return fmt.Errorf("metadata.name is not found")
