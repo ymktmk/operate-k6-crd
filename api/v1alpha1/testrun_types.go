@@ -6,41 +6,41 @@ import (
 )
 
 type TestRunSpec struct {
-	Script      K6Script               `json:"script"`
-	Parallelism int32                  `json:"parallelism"`
-	Separate    bool                   `json:"separate,omitempty"`
-	Arguments   string                 `json:"arguments,omitempty"`
-	Ports       []corev1.ContainerPort `json:"ports,omitempty"`
-	Initializer *Pod                   `json:"initializer,omitempty"`
-	Starter     Pod                    `json:"starter,omitempty"`
-	Runner      Pod                    `json:"runner,omitempty"`
-	Quiet       string                 `json:"quiet,omitempty"`
-	Paused      string                 `json:"paused,omitempty"`
-	Scuttle     K6Scuttle              `json:"scuttle,omitempty"`
-	Cleanup     Cleanup                `json:"cleanup,omitempty"`
+	Script      K6Script               `yaml:"script"`
+	Parallelism int32                  `yaml:"parallelism"`
+	Separate    bool                   `yaml:"separate,omitempty"`
+	Arguments   string                 `yaml:"arguments,omitempty"`
+	Ports       []corev1.ContainerPort `yaml:"ports,omitempty"`
+	Initializer *Pod                   `yaml:"initializer,omitempty"`
+	Starter     Pod                    `yaml:"starter,omitempty"`
+	Runner      Pod                    `yaml:"runner,omitempty"`
+	Quiet       string                 `yaml:"quiet,omitempty"`
+	Paused      string                 `yaml:"paused,omitempty"`
+	Scuttle     K6Scuttle              `yaml:"scuttle,omitempty"`
+	Cleanup     Cleanup                `yaml:"cleanup,omitempty"`
 
-	TestRunID string `json:"testRunId,omitempty"`
-	Token     string `json:"token,omitempty"`
+	TestRunID string `yaml:"testRunId,omitempty"`
+	Token     string `yaml:"token,omitempty"`
 }
 
 type TestRunStatus struct {
-	Stage           Stage  `json:"stage,omitempty"`
-	TestRunID       string `json:"testRunId,omitempty"`
-	AggregationVars string `json:"aggregationVars,omitempty"`
+	Stage           Stage  `yaml:"stage,omitempty"`
+	TestRunID       string `yaml:"testRunId,omitempty"`
+	AggregationVars string `yaml:"aggregationVars,omitempty"`
 
-	Conditions []metav1.Condition `json:"conditions,omitempty"`
+	Conditions []metav1.Condition `yaml:"conditions,omitempty"`
 }
 
 type TestRun struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.TypeMeta   `yaml:",inline"`
+	metav1.ObjectMeta `yaml:"metadata,omitempty"`
 
-	Spec   TestRunSpec   `json:"spec,omitempty"`
-	Status TestRunStatus `json:"status,omitempty"`
+	Spec   TestRunSpec   `yaml:"spec,omitempty"`
+	Status TestRunStatus `yaml:"status,omitempty"`
 }
 
 type TestRunList struct {
-	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []TestRun `json:"items"`
+	metav1.TypeMeta `yaml:",inline"`
+	metav1.ListMeta `yaml:"metadata,omitempty"`
+	Items           []TestRun `yaml:"items"`
 }

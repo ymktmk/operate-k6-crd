@@ -7,6 +7,8 @@ import (
 	"github.com/ymktmk/apply-k6-crd/pkg/k6"
 )
 
+// export INPUT_TEMPLATE=./example/k6.yaml
+
 func main() {
 
 	template := os.Getenv("INPUT_TEMPLATE")

@@ -3,7 +3,6 @@ package k6
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"math"
 	"math/rand"
@@ -36,7 +35,7 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 		return nil, err
 	}
 
-	bytes, err := ioutil.ReadFile(template)
+	bytes, err := os.ReadFile(template)
 	if err != nil {
 		return nil, err
 	}
