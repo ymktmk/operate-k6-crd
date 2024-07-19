@@ -24,7 +24,7 @@ vus, duration, rps, parallelism can be overridden
 
 ```yaml
 apiVersion: k6.io/v1alpha1
-kind: K6
+kind: TestRun
 metadata:
   name: k6-sample
   namespace: k6-operator-system
