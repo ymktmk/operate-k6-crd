@@ -69,7 +69,7 @@ func NewK6(template, vus, duration, rps, parallelism, file string) (*K6, error) 
 		jsFile = file
 	}
 
-	k6Res := schema.GroupVersionResource{Group: "k6.io", Version: "v1alpha1", Resource: "k6s"}
+	k6Res := schema.GroupVersionResource{Group: "k6.io", Version: "v1alpha1", Resource: "testruns"}
 
 	k6 := &unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -166,7 +166,7 @@ func (k *K6) CreateK6() error {
 	gvrMachineSet := schema.GroupVersionResource{
 		Group:    "k6.io",
 		Version:  "v1alpha1",
-		Resource: "k6s",
+		Resource: "testruns",
 	}
 
 	stopCh := make(chan struct{})
